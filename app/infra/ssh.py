@@ -14,6 +14,7 @@ import socket
 from app.core.config import ROOT_DIR, SSH_COMMAND_TIMEOUT, SSH_TIMEOUT
 from app.servers.models import Server
 from app.stats.models import (
+    CpuInfo,
     DiskInfo,
     HostStats,
     MemoryInfo,
@@ -197,6 +198,43 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
     return total, used
 
 
+def fetch_cpu(client: paramiko.SSHClient) -> tuple[int | None, float | None]:
+    cores_result = run_command(client, "command -v nproc >/dev/null 2>&1 && nproc || getconf _NPROCESSORS_ONLN")
+    if cores_result.exit_code == 0:
+        try:
+            cores = int(cores_result.stdout.strip())
+        except (TypeError, ValueError):
+            cores = None
+    else:
+        cores = None
+
+    usage_script = (
+        "read cpu user nice system idle iowait irq softirq steal guest guest_nice < /proc/stat; "
+        "total1=$((user+nice+system+idle+iowait+irq+softirq+steal)); "
+        "idle1=$((idle+iowait)); "
+        "sleep 0.5; "
+        "read cpu user nice system idle iowait irq softirq steal guest guest_nice < /proc/stat; "
+        "total2=$((user+nice+system+idle+iowait+irq+softirq+steal)); "
+        "idle2=$((idle+iowait)); "
+        "total=$((total2-total1)); "
+        "idle=$((idle2-idle1)); "
+        "if [ \"$total\" -gt 0 ]; then "
+        "usage=$(awk \"BEGIN {print (1-($idle/$total))*100}\"); "
+        "printf \"%.2f\" \"$usage\"; "
+        "else echo \"0.00\"; "
+        "fi"
+    )
+    usage_result = run_command(client, usage_script, login_shell=True)
+    if usage_result.exit_code == 0:
+        try:
+            usage_percent = float(usage_result.stdout.strip())
+        except (TypeError, ValueError):
+            usage_percent = None
+    else:
+        usage_percent = None
+    return cores, usage_percent
+
+
 def extract_json_array(text: str) -> list[dict] | None:
     decoder = json.JSONDecoder()
     for idx, char in enumerate(text):
@@ -371,6 +409,7 @@ def build_error_stats(server: Server, message: str) -> HostStats:
         port=server.port,
         tags=server.tags,
         error=message,
+        cpu=CpuInfo(usage_human="n/a"),
         memory=MemoryInfo(total_human="n/a", used_human="n/a"),
         uptime=UptimeInfo(human="n/a"),
         disk=DiskInfo(total_human="n/a", used_human="n/a"),
@@ -380,6 +419,7 @@ def build_error_stats(server: Server, message: str) -> HostStats:
 
 
 def collect_stats(client: paramiko.SSHClient, server: Server) -> HostStats:
+    cpu_cores, cpu_usage = fetch_cpu(client)
     mem_total, mem_used = fetch_memory(client)
     uptime_seconds = fetch_uptime(client)
     disk_total, disk_used = fetch_disk(client)
@@ -410,6 +450,11 @@ def collect_stats(client: paramiko.SSHClient, server: Server) -> HostStats:
         port=server.port,
         tags=server.tags,
         error=None,
+        cpu=CpuInfo(
+            cores=cpu_cores,
+            usage_percent=cpu_usage,
+            usage_human="n/a" if cpu_usage is None else f"{cpu_usage:.2f}%",
+        ),
         memory=MemoryInfo(
             total_bytes=mem_total,
             used_bytes=mem_used,

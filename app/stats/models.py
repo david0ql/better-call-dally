@@ -23,6 +23,12 @@ class DiskInfo(BaseModel):
     used_human: str
 
 
+class CpuInfo(BaseModel):
+    cores: int | None = None
+    usage_percent: float | None = None
+    usage_human: str
+
+
 class Pm2Process(BaseModel):
     id: int | None = None
     name: str | None = None
@@ -69,6 +75,7 @@ class HostStats(BaseModel):
     port: int
     tags: list[str]
     error: str | None = None
+    cpu: CpuInfo
     memory: MemoryInfo
     uptime: UptimeInfo
     disk: DiskInfo
