@@ -5,6 +5,7 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
+import os
 
 from fastapi import WebSocket
 
@@ -14,6 +15,8 @@ from app.stats.service import StatsService
 MIN_INTERVAL_S = 3.0
 MAX_INTERVAL_S = 60.0
 DEFAULT_INTERVAL_S = 10.0
+PM2_DETAIL_LIMIT = int(os.environ.get("BCD_PM2_DETAIL_LIMIT", "8"))
+SUP_DETAIL_LIMIT = int(os.environ.get("BCD_SUP_DETAIL_LIMIT", "5"))
 
 
 @dataclass
@@ -113,7 +116,7 @@ class RealtimeHub:
             subs = self._server_subs.setdefault(server_id, {})
             subs[websocket] = Subscription(interval_s=interval_s, detail=detail)
             cache = self._cache.get(server_id)
-        if cache is not None:
+        if cache is not None and cache.detail == detail:
             await self._safe_send(websocket, cache.payload)
 
     async def _unsubscribe_server(self, websocket: WebSocket, server_id: str) -> None:
@@ -171,9 +174,13 @@ class RealtimeHub:
                     "ts": datetime.now(timezone.utc).isoformat(),
                 }
             else:
+                if detail == "summary":
+                    server_payload = self._build_summary(stats)
+                else:
+                    server_payload = self._build_full(stats)
                 payload = {
                     "type": "server:update",
-                    "server": stats.model_dump(),
+                    "server": server_payload,
                     "detail": detail,
                     "ts": datetime.now(timezone.utc).isoformat(),
                 }
@@ -220,6 +227,89 @@ class RealtimeHub:
             value = max(MIN_INTERVAL_S, min(MAX_INTERVAL_S, interval_ms / 1000.0))
             return value
         return DEFAULT_INTERVAL_S
+
+    def _build_summary(self, stats) -> dict:
+        return {
+            "server_id": stats.server_id,
+            "server_name": stats.server_name,
+            "host": stats.host,
+            "error": stats.error,
+            "cpu": {
+                "cores": stats.cpu.cores,
+                "usage_percent": stats.cpu.usage_percent,
+            },
+            "memory": {
+                "total_bytes": stats.memory.total_bytes,
+                "used_bytes": stats.memory.used_bytes,
+            },
+            "disk": {
+                "total_bytes": stats.disk.total_bytes,
+                "used_bytes": stats.disk.used_bytes,
+            },
+            "uptime": {
+                "seconds": stats.uptime.seconds,
+                "human": stats.uptime.human,
+            },
+            "pm2": {
+                "processes": stats.pm2.processes,
+                "total_memory_bytes": stats.pm2.total_memory_bytes,
+            },
+            "supervisor": {
+                "total": stats.supervisor.total,
+                "running": stats.supervisor.running,
+            },
+        }
+
+    def _build_full(self, stats) -> dict:
+        pm2_details = stats.pm2.details or []
+        sup_details = stats.supervisor.details or []
+        return {
+            "server_id": stats.server_id,
+            "server_name": stats.server_name,
+            "host": stats.host,
+            "user": stats.user,
+            "port": stats.port,
+            "tags": stats.tags,
+            "error": stats.error,
+            "cpu": {
+                "cores": stats.cpu.cores,
+                "usage_percent": stats.cpu.usage_percent,
+            },
+            "memory": {
+                "total_bytes": stats.memory.total_bytes,
+                "used_bytes": stats.memory.used_bytes,
+            },
+            "disk": {
+                "total_bytes": stats.disk.total_bytes,
+                "used_bytes": stats.disk.used_bytes,
+            },
+            "uptime": {
+                "seconds": stats.uptime.seconds,
+                "human": stats.uptime.human,
+            },
+            "pm2": {
+                "processes": stats.pm2.processes,
+                "total_memory_bytes": stats.pm2.total_memory_bytes,
+                "details": [
+                    {"name": item.name, "status": item.status}
+                    for item in pm2_details[:PM2_DETAIL_LIMIT]
+                    if item is not None
+                ],
+            },
+            "supervisor": {
+                "total": stats.supervisor.total,
+                "running": stats.supervisor.running,
+                "details": [
+                    {
+                        "name": item.name,
+                        "state": item.state,
+                        "uptime": item.uptime,
+                    }
+                    for item in sup_details[:SUP_DETAIL_LIMIT]
+                    if item is not None
+                ],
+            },
+        }
 
 
 hub = RealtimeHub()
