@@ -33,6 +33,21 @@ class SshResult:
     exit_code: int
 
 
+def redact_output(text: str, secret: str | None) -> str:
+    if not text or not secret:
+        return text
+    lines = text.splitlines()
+    filtered: list[str] = []
+    for line in lines:
+        if line.strip() == secret:
+            continue
+        filtered.append(line.replace(secret, "[redacted]"))
+    result = "\n".join(filtered)
+    if text.endswith("\n"):
+        result += "\n"
+    return result
+
+
 def format_bytes(value: int | None) -> str:
     if value is None:
         return "n/a"
@@ -94,7 +109,14 @@ def run_sudo_command(
 ) -> SshResult:
     if login_shell:
         command = f"bash -lc {shlex.quote(command)}"
-    sudo_command = f"sudo -S -p '' -u {shlex.quote(user)} /bin/sh -c {shlex.quote(command)}"
+    sudo_inner = f"sudo -S -p '' -u {shlex.quote(user)} /bin/sh -c {shlex.quote(command)}"
+    sudo_command = (
+        "stty -echo >/dev/null 2>&1 || true; "
+        f"{sudo_inner}; "
+        "status=$?; "
+        "stty echo >/dev/null 2>&1 || true; "
+        "exit $status"
+    )
     stdin, stdout, stderr = client.exec_command(sudo_command, get_pty=True)
     stdout.channel.settimeout(SSH_COMMAND_TIMEOUT)
     stderr.channel.settimeout(SSH_COMMAND_TIMEOUT)
@@ -106,7 +128,11 @@ def run_sudo_command(
         err = stderr.read().decode("utf-8", errors="replace")
     except socket.timeout:
         return SshResult(stdout="", stderr="command timeout", exit_code=124)
-    return SshResult(stdout=out, stderr=err, exit_code=exit_status)
+    return SshResult(
+        stdout=redact_output(out, password),
+        stderr=redact_output(err, password),
+        exit_code=exit_status,
+    )
 
 
 def read_public_key(path: Path) -> str:
