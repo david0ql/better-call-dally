@@ -267,9 +267,6 @@ class RealtimeHub:
             "server_id": stats.server_id,
             "server_name": stats.server_name,
             "host": stats.host,
-            "user": stats.user,
-            "port": stats.port,
-            "tags": stats.tags,
             "error": stats.error,
             "cpu": {
                 "cores": stats.cpu.cores,
