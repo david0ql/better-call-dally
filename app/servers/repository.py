@@ -32,6 +32,14 @@ class ServerRepository:
             self._save(servers)
         return server
 
+    def get_by_id(self, server_id: str) -> Server | None:
+        with self._lock:
+            servers = self._load()
+        for server in servers:
+            if server.id == server_id:
+                return server
+        return None
+
     def _load(self) -> list[Server]:
         if not self._path.exists():
             return []

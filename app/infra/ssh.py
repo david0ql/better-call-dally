@@ -444,29 +444,39 @@ def build_error_stats(server: Server, message: str) -> HostStats:
     )
 
 
-def collect_stats(client: paramiko.SSHClient, server: Server) -> HostStats:
+def collect_stats(
+    client: paramiko.SSHClient,
+    server: Server,
+    *,
+    detail: str = "full",
+) -> HostStats:
     cpu_cores, cpu_usage = fetch_cpu(client)
     mem_total, mem_used = fetch_memory(client)
     uptime_seconds = fetch_uptime(client)
     disk_total, disk_used = fetch_disk(client)
-    pm2_info, _ = fetch_pm2_details(
-        client,
-        pm2_user=server.pm2_user,
-        pm2_home=server.pm2_home,
-        sudo_password=server.password if server.user != "root" else None,
-    )
-    if pm2_info.error and server.password and server.user != "root":
+    detail_level = detail.lower()
+    if detail_level == "summary":
+        pm2_info = Pm2Info(error="skipped")
+        supervisor_info = SupervisorInfo()
+    else:
         pm2_info, _ = fetch_pm2_details(
             client,
-            pm2_user="root",
-            pm2_home=server.pm2_home or "/root/.pm2",
-            sudo_password=server.password,
+            pm2_user=server.pm2_user,
+            pm2_home=server.pm2_home,
+            sudo_password=server.password if server.user != "root" else None,
         )
-    supervisor_info = fetch_supervisor(
-        client,
-        sudo_password=server.password if server.user != "root" else None,
-        ssh_user=server.user,
-    )
+        if pm2_info.error and server.password and server.user != "root":
+            pm2_info, _ = fetch_pm2_details(
+                client,
+                pm2_user="root",
+                pm2_home=server.pm2_home or "/root/.pm2",
+                sudo_password=server.password,
+            )
+        supervisor_info = fetch_supervisor(
+            client,
+            sudo_password=server.password if server.user != "root" else None,
+            ssh_user=server.user,
+        )
 
     return HostStats(
         server_id=server.id,

@@ -78,12 +78,12 @@ class SSHClientPool:
         with entry.lock:
             return self._ensure_connected_locked(server, entry)
 
-    def collect(self, server: Server):
+    def collect(self, server: Server, *, detail: str = "full"):
         entry = self._get_entry(server.id)
         with entry.lock:
             try:
                 client = self._ensure_connected_locked(server, entry)
-                return collect_stats(client, server)
+                return collect_stats(client, server, detail=detail)
             except Exception as exc:
                 entry.last_error = str(exc)
                 if entry.client:

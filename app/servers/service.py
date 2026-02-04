@@ -20,6 +20,9 @@ class ServerService:
     def list_servers(self) -> list[Server]:
         return self._repo.list()
 
+    def get_server(self, server_id: str) -> Server | None:
+        return self._repo.get_by_id(server_id)
+
     def add_server(self, payload: ServerCreate) -> Server:
         if payload.key_path is None:
             payload = payload.model_copy(update={"key_path": DEFAULT_KEY_PATH})

@@ -24,3 +24,17 @@ class StatsService:
         with ThreadPoolExecutor(max_workers=workers) as executor:
             results = list(executor.map(self._pool.collect, servers))
         return StatsResponse(servers=results)
+
+    def collect_one(
+        self,
+        server_id: str,
+        *,
+        include_disabled: bool = False,
+        detail: str = "full",
+    ) -> HostStats | None:
+        server = self._server_service.get_server(server_id)
+        if server is None:
+            return None
+        if not include_disabled and not server.enabled:
+            return None
+        return self._pool.collect(server, detail=detail)
