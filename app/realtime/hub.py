@@ -268,22 +268,6 @@ class RealtimeHub:
             "server_name": stats.server_name,
             "host": stats.host,
             "error": stats.error,
-            "cpu": {
-                "cores": stats.cpu.cores,
-                "usage_percent": stats.cpu.usage_percent,
-            },
-            "memory": {
-                "total_bytes": stats.memory.total_bytes,
-                "used_bytes": stats.memory.used_bytes,
-            },
-            "disk": {
-                "total_bytes": stats.disk.total_bytes,
-                "used_bytes": stats.disk.used_bytes,
-            },
-            "uptime": {
-                "seconds": stats.uptime.seconds,
-                "human": stats.uptime.human,
-            },
             "pm2": {
                 "processes": stats.pm2.processes,
                 "total_memory_bytes": stats.pm2.total_memory_bytes,
