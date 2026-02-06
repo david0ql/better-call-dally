@@ -11,6 +11,11 @@ MAX_WORKERS = int(os.environ.get("BCD_MAX_WORKERS", "8"))
 SSH_TIMEOUT = float(os.environ.get("BCD_SSH_TIMEOUT", "30"))
 SSH_COMMAND_TIMEOUT = float(os.environ.get("BCD_SSH_COMMAND_TIMEOUT", "30"))
 SSH_HEALTHCHECK_INTERVAL = float(os.environ.get("BCD_SSH_HEALTHCHECK_INTERVAL", "10"))
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("BCD_CORS_ORIGINS", "*").split(",")
+    if origin.strip()
+]
 
 
 def ensure_data_dir() -> None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import ensure_data_dir
 from app.core.keys import ensure_watcher_keypair
@@ -12,6 +13,14 @@ from app.servers.service import ServerService
 from app.stats.router import router as stats_router
 
 app = FastAPI(title="Better Call Dally", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
