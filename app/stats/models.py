@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class MemoryInfo(BaseModel):
@@ -16,11 +16,16 @@ class UptimeInfo(BaseModel):
 
 
 class DiskInfo(BaseModel):
+    device: str = "/"
     mount: str = "/"
     total_bytes: int | None = None
     used_bytes: int | None = None
     total_human: str
     used_human: str
+
+
+class DisksInfo(BaseModel):
+    disks: list[DiskInfo] = Field(default_factory=list)
 
 
 class CpuInfo(BaseModel):
@@ -78,7 +83,7 @@ class HostStats(BaseModel):
     cpu: CpuInfo
     memory: MemoryInfo
     uptime: UptimeInfo
-    disk: DiskInfo
+    disks: DisksInfo
     pm2: Pm2Info
     supervisor: SupervisorInfo
 

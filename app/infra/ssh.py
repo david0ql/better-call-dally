@@ -224,6 +224,49 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
     return total, used
 
 
+def fetch_disks(client: paramiko.SSHClient) -> list[DiskInfo]:
+    result = run_command(client, "df -B1 --output=source,fstype,size,used,target 2>/dev/null | grep -E '^/dev' | tail -n +2")
+    if result.exit_code != 0:
+        result = run_command(client, "df -B1 | grep -E '^/dev' | tail -n +2")
+        if result.exit_code != 0:
+            return []
+
+    disks: list[DiskInfo] = []
+    for line in result.stdout.splitlines():
+        parts = line.split()
+        if len(parts) < 5:
+            continue
+        try:
+            device = parts[0]
+            total = int(parts[1])
+            used = int(parts[2])
+            mount = parts[4] if len(parts) > 4 else parts[3]
+            disks.append(DiskInfo(
+                device=device,
+                mount=mount,
+                total_bytes=total,
+                used_bytes=used,
+                total_human=format_bytes(total),
+                used_human=format_bytes(used),
+            ))
+        except (ValueError, IndexError):
+            continue
+
+    if not disks:
+        total, used = fetch_disk(client)
+        if total is not None:
+            disks.append(DiskInfo(
+                device="/dev/root",
+                mount="/",
+                total_bytes=total,
+                used_bytes=used,
+                total_human=format_bytes(total),
+                used_human=format_bytes(used),
+            ))
+
+    return disks
+
+
 def fetch_cpu(client: paramiko.SSHClient) -> tuple[int | None, float | None]:
     cores_result = run_command(client, "command -v nproc >/dev/null 2>&1 && nproc || getconf _NPROCESSORS_ONLN")
     if cores_result.exit_code == 0:
@@ -438,7 +481,7 @@ def build_error_stats(server: Server, message: str) -> HostStats:
         cpu=CpuInfo(usage_human="n/a"),
         memory=MemoryInfo(total_human="n/a", used_human="n/a"),
         uptime=UptimeInfo(human="n/a"),
-        disk=DiskInfo(total_human="n/a", used_human="n/a"),
+        disks=DisksInfo(disks=[DiskInfo(device="/dev/root", mount="/", total_human="n/a", used_human="n/a")]),
         pm2=Pm2Info(error=message),
         supervisor=SupervisorInfo(),
     )
@@ -453,7 +496,7 @@ def collect_stats(
     cpu_cores, cpu_usage = fetch_cpu(client)
     mem_total, mem_used = fetch_memory(client)
     uptime_seconds = fetch_uptime(client)
-    disk_total, disk_used = fetch_disk(client)
+    disks_info = fetch_disks(client)
     detail_level = detail.lower()
     if detail_level == "summary":
         pm2_info = Pm2Info(error="skipped")
@@ -498,13 +541,7 @@ def collect_stats(
             used_human=format_bytes(mem_used),
         ),
         uptime=UptimeInfo(seconds=uptime_seconds, human=format_seconds(uptime_seconds)),
-        disk=DiskInfo(
-            mount="/",
-            total_bytes=disk_total,
-            used_bytes=disk_used,
-            total_human=format_bytes(disk_total),
-            used_human=format_bytes(disk_used),
-        ),
+        disks=DisksInfo(disks=disks_info),
         pm2=pm2_info,
         supervisor=supervisor_info,
     )

@@ -229,6 +229,14 @@ class RealtimeHub:
         return DEFAULT_INTERVAL_S
 
     def _build_summary(self, stats) -> dict:
+        disks_list = []
+        for d in (stats.disks.disks or []):
+            disks_list.append({
+                "device": d.device,
+                "mount": d.mount,
+                "total_bytes": d.total_bytes,
+                "used_bytes": d.used_bytes,
+            })
         return {
             "server_id": stats.server_id,
             "server_name": stats.server_name,
@@ -242,10 +250,7 @@ class RealtimeHub:
                 "total_bytes": stats.memory.total_bytes,
                 "used_bytes": stats.memory.used_bytes,
             },
-            "disk": {
-                "total_bytes": stats.disk.total_bytes,
-                "used_bytes": stats.disk.used_bytes,
-            },
+            "disks": {"disks": disks_list},
             "uptime": {
                 "seconds": stats.uptime.seconds,
                 "human": stats.uptime.human,
@@ -261,6 +266,14 @@ class RealtimeHub:
         }
 
     def _build_full(self, stats) -> dict:
+        disks_list = []
+        for d in (stats.disks.disks or []):
+            disks_list.append({
+                "device": d.device,
+                "mount": d.mount,
+                "total_bytes": d.total_bytes,
+                "used_bytes": d.used_bytes,
+            })
         pm2_details = stats.pm2.details or []
         sup_details = stats.supervisor.details or []
         return {
@@ -268,6 +281,7 @@ class RealtimeHub:
             "server_name": stats.server_name,
             "host": stats.host,
             "error": stats.error,
+            "disks": {"disks": disks_list},
             "pm2": {
                 "processes": stats.pm2.processes,
                 "total_memory_bytes": stats.pm2.total_memory_bytes,
