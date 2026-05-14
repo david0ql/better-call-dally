@@ -15,6 +15,7 @@ from app.core.config import ROOT_DIR, SSH_COMMAND_TIMEOUT, SSH_TIMEOUT
 from app.servers.models import Server
 from app.stats.models import (
     CpuInfo,
+    DisksInfo,
     DiskInfo,
     HostStats,
     MemoryInfo,
