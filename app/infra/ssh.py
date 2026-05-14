@@ -485,7 +485,7 @@ def collect_stats(
     cpu_cores, cpu_usage = fetch_cpu(client)
     mem_total, mem_used = fetch_memory(client)
     uptime_seconds = fetch_uptime(client)
-    disks_info = fetch_disks(client)
+    disks_info = fetch_disk(client, server.disk_mount)
     detail_level = detail.lower()
     if detail_level == "summary":
         pm2_info = Pm2Info(error="skipped")
