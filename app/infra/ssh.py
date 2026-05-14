@@ -225,7 +225,7 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
     return total, used
 
 
-def fetch_disks(client: paramiko.SSHClient) -> list[DiskInfo]:
+def fetch_disk(client: paramiko.SSHClient, mount_filter: str | None = None) -> list[DiskInfo]:
     result = run_command(client, "df -B1 | grep -E '^/dev' | tail -n +2")
     if result.exit_code != 0:
         return []
@@ -240,6 +240,8 @@ def fetch_disks(client: paramiko.SSHClient) -> list[DiskInfo]:
             total = int(parts[1])
             used = int(parts[2])
             mount = parts[5] if len(parts) > 5 else parts[4]
+            if mount_filter and mount != mount_filter:
+                continue
             disks.append(DiskInfo(
                 device=device,
                 mount=mount,

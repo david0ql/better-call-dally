@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 import paramiko
 
 from app.core.config import MAX_WORKERS, SSH_HEALTHCHECK_INTERVAL, SSH_TIMEOUT
-from app.infra.ssh import build_error_stats, collect_stats, fetch_disks, resolve_key_path
+from app.infra.ssh import build_error_stats, collect_stats, fetch_disk, resolve_key_path
 from app.servers.models import Server
 from app.stats.models import HostStats
 
@@ -101,7 +101,7 @@ class SSHClientPool:
         with entry.lock:
             try:
                 client = self._ensure_connected_locked(server, entry)
-                disks = fetch_disks(client)
+                disks = fetch_disk(client, server.disk_mount)
                 stats = collect_stats(client, server, detail="summary")
                 stats.disks.disks = disks
                 return stats

@@ -5,10 +5,11 @@
     "host": "10.0.142.22",
     "port": 22,
     "user": "admon",
-    "password": "9243e210f22ae2a4961908f5bd9ae572d7dc75993c66590702c145b56ff64580808641cb109a",
+    "password": "4de125318fbf625a805a0d6358673326e2240ac3c7bbd380b501305b4ba42bec8c4261ff517f",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/Data",
+    "disk_mount": "/Data",
     "tags": [
       "database",
       "amovil"
@@ -21,10 +22,11 @@
     "host": "10.0.142.27",
     "port": 22,
     "user": "admon",
-    "password": "95aa48744735ea7595ff7e22498fdb6c6dc392e5158fb6a0342a30731d714de873ab0e92b015",
+    "password": "91f1ba92a338a72181effbc91a6533d36c725d93a54800a078779c43bdefea2cf25ae3bfa67b",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/Data",
+    "disk_mount": "/Data",
     "tags": [
       "database",
       "amovil"
@@ -37,10 +39,11 @@
     "host": "10.0.142.14",
     "port": 22,
     "user": "admon",
-    "password": "0ad1ab3a393f121bcbebbf3b14be089674cfdb604046fdffecfba87ad8960e4ea3d66473561d",
+    "password": "08ac38c60ef04546953da64bb22bc7d2fba45a5e3677ef484caa41835ab01ee0af1a7163c1de",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/Data",
+    "disk_mount": "/Data",
     "tags": [
       "database",
       "amovil"
@@ -53,10 +56,11 @@
     "host": "10.0.142.16",
     "port": 22,
     "user": "root",
-    "password": "66dd661ae75b10bf64838d8385d177a4dc80965a87def84ad9857937bdcae45d951fc0748dceb0c5",
+    "password": "e5cf70747e739902995121c239a875f423dc28ac9466dee0f3b6a99b50cd01bdaf3e2357a56a8567",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/data",
+    "disk_mount": "/data",
     "tags": [
       "erp",
       "amovil"
@@ -69,10 +73,11 @@
     "host": "10.0.142.8",
     "port": 22,
     "user": "admon",
-    "password": "369da963616feb55a42cd5f5a25ae22fc8099e92a522cf370615d5e2f5bfb45747c55984b049b5ac802100",
+    "password": "f1c2480adea31c86b108267c49a30642d6fed5be537370548efb1d276e449cdeb0ed79ec40458577b5e851",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/data",
+    "disk_mount": "/data",
     "tags": [
       "felam",
       "amovil"
@@ -85,10 +90,11 @@
     "host": "10.0.142.29",
     "port": 22,
     "user": "admon",
-    "password": "c4864c595a08e945ddef99d15ed156d558c0944fbeeeb3ff31df878b89f745277e872544aa8f2c",
+    "password": "9d6834eb2f05c9c269838d33a287d8edf466323ca097c6362d8b1904de5b67ee125f59ade8ab2b",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": null,
+    "disk_mount": "/",
     "tags": [
       "gerencia",
       "amovil"
@@ -101,10 +107,11 @@
     "host": "10.0.142.35",
     "port": 22,
     "user": "admon",
-    "password": "a2a8b84981e8060beee0e45d7ca60b283996ece8e09cfb6fa0caf4ea2afb804f6a4222b3c7a3fc15",
+    "password": "97e1dc050c8e8547dd351541260c744d022a56a2b4ce6d206349a8445a354f785859e3ccf8d2e831",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": null,
+    "disk_mount": "/",
     "tags": [
       "gerencia",
       "amovil"
@@ -117,10 +124,11 @@
     "host": "10.0.142.26",
     "port": 22,
     "user": "admon",
-    "password": "19a8d5e28a56a7907f2914e6e1d3b2921f8b558c81f478f1422bc6fb5782ccea799bb22165",
+    "password": "b0fd8fceba55b60a0a54f64512abdc6755430e510c9ca52a40af9880c8d85933737fe5ee73",
     "key_path": null,
     "pm2_user": null,
     "pm2_home": "/Data",
+    "disk_mount": "/Data",
     "tags": [
       "amovil"
     ],

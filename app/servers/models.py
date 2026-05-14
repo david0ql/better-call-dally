@@ -16,6 +16,7 @@ class ServerCreate(BaseModel):
     key_path: str | None = None
     pm2_user: str | None = None
     pm2_home: str | None = None
+    disk_mount: str | None = None
     tags: list[str] = Field(default_factory=list)
     enabled: bool = True
 
@@ -30,6 +31,7 @@ class Server(BaseModel):
     key_path: str | None = None
     pm2_user: str | None = None
     pm2_home: str | None = None
+    disk_mount: str | None = None
     tags: list[str] = Field(default_factory=list)
     enabled: bool
 
@@ -55,6 +57,7 @@ class Server(BaseModel):
             key_path=payload.key_path,
             pm2_user=payload.pm2_user,
             pm2_home=payload.pm2_home,
+            disk_mount=payload.disk_mount,
             tags=payload.tags,
             enabled=payload.enabled,
         )
@@ -69,6 +72,7 @@ class ServerPublic(BaseModel):
     key_path: str | None = None
     pm2_user: str | None = None
     pm2_home: str | None = None
+    disk_mount: str | None = None
     tags: list[str] = Field(default_factory=list)
     enabled: bool
 
