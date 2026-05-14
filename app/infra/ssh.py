@@ -233,13 +233,13 @@ def fetch_disk(client: paramiko.SSHClient, mount_filter: str | None = None) -> l
     disks: list[DiskInfo] = []
     for line in result.stdout.splitlines():
         parts = line.split()
-        if len(parts) < 6:
+        if len(parts) < 5:
             continue
         try:
             device = parts[0]
             total = int(parts[1])
             used = int(parts[2])
-            mount = parts[5] if len(parts) > 5 else parts[4]
+            mount = parts[-1]
             if mount_filter and mount != mount_filter:
                 continue
             disks.append(DiskInfo(
