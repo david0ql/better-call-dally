@@ -226,7 +226,7 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
 
 
 def fetch_disk(client: paramiko.SSHClient, mount_filters: list[str] | None = None) -> list[DiskInfo]:
-    result = run_command(client, "df -B1 | grep -E '^/dev'")
+    result = run_command(client, "df -B1 | grep -E '^/dev' | grep -v '/dev/loop'")
     if result.exit_code != 0:
         return []
 
