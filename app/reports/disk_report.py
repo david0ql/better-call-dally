@@ -47,6 +47,10 @@ class DiskReportService:
             print("[DiskReport] Email not configured (missing BCD_EMAIL_API_URL, BCD_EMAIL_ACCESS_TOKEN or BCD_EMAIL_TO)")
             return
         print("[DiskReport] Email reporting enabled")
+        try:
+            self._loop = asyncio.get_event_loop()
+        except RuntimeError:
+            self._loop = None
         self._schedule_next()
 
     def stop(self) -> None:
@@ -58,7 +62,10 @@ class DiskReportService:
         def target() -> None:
             if self._shutdown.is_set():
                 return
-            asyncio.create_task(self._send_report_if_needed())
+            if self._loop is not None and self._loop.is_running():
+                asyncio.run_coroutine_threadsafe(self._send_report_if_needed(), self._loop)
+            else:
+                print("[DiskReport] No event loop available for scheduled report")
             self._schedule_next()
 
         now = datetime.datetime.now()
