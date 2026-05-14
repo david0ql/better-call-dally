@@ -1,0 +1,129 @@
+[
+  {
+    "id": "srv-001",
+    "name": "Amovil Base datos 1",
+    "host": "10.0.142.22",
+    "port": 22,
+    "user": "admon",
+    "password": "9243e210f22ae2a4961908f5bd9ae572d7dc75993c66590702c145b56ff64580808641cb109a",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/Data",
+    "tags": [
+      "database",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-002",
+    "name": "Amovil Base datos 2",
+    "host": "10.0.142.27",
+    "port": 22,
+    "user": "admon",
+    "password": "95aa48744735ea7595ff7e22498fdb6c6dc392e5158fb6a0342a30731d714de873ab0e92b015",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/Data",
+    "tags": [
+      "database",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-003",
+    "name": "Amovil Base datos 3",
+    "host": "10.0.142.14",
+    "port": 22,
+    "user": "admon",
+    "password": "0ad1ab3a393f121bcbebbf3b14be089674cfdb604046fdffecfba87ad8960e4ea3d66473561d",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/Data",
+    "tags": [
+      "database",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-004",
+    "name": "Amovil ERP",
+    "host": "10.0.142.16",
+    "port": 22,
+    "user": "root",
+    "password": "66dd661ae75b10bf64838d8385d177a4dc80965a87def84ad9857937bdcae45d951fc0748dceb0c5",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/data",
+    "tags": [
+      "erp",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-005",
+    "name": "Felam base",
+    "host": "10.0.142.8",
+    "port": 22,
+    "user": "admon",
+    "password": "369da963616feb55a42cd5f5a25ae22fc8099e92a522cf370615d5e2f5bfb45747c55984b049b5ac802100",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/data",
+    "tags": [
+      "felam",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-006",
+    "name": "Gerencia",
+    "host": "10.0.142.29",
+    "port": 22,
+    "user": "admon",
+    "password": "c4864c595a08e945ddef99d15ed156d558c0944fbeeeb3ff31df878b89f745277e872544aa8f2c",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": null,
+    "tags": [
+      "gerencia",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-007",
+    "name": "Gerencia 2",
+    "host": "10.0.142.35",
+    "port": 22,
+    "user": "admon",
+    "password": "a2a8b84981e8060beee0e45d7ca60b283996ece8e09cfb6fa0caf4ea2afb804f6a4222b3c7a3fc15",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": null,
+    "tags": [
+      "gerencia",
+      "amovil"
+    ],
+    "enabled": true
+  },
+  {
+    "id": "srv-008",
+    "name": "Uno a uno",
+    "host": "10.0.142.26",
+    "port": 22,
+    "user": "admon",
+    "password": "19a8d5e28a56a7907f2914e6e1d3b2921f8b558c81f478f1422bc6fb5782ccea799bb22165",
+    "key_path": null,
+    "pm2_user": null,
+    "pm2_home": "/Data",
+    "tags": [
+      "amovil"
+    ],
+    "enabled": true
+  }
+]
