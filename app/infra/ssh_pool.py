@@ -7,8 +7,9 @@ from concurrent.futures import ThreadPoolExecutor
 import paramiko
 
 from app.core.config import MAX_WORKERS, SSH_HEALTHCHECK_INTERVAL, SSH_TIMEOUT
-from app.infra.ssh import build_error_stats, collect_stats, resolve_key_path
+from app.infra.ssh import build_error_stats, collect_stats, fetch_disks, resolve_key_path
 from app.servers.models import Server
+from app.stats.models import HostStats
 
 
 class _Entry:
@@ -54,6 +55,10 @@ class SSHClientPool:
             for server in servers:
                 self._servers[server.id] = server
 
+    def get_all_servers(self) -> list[Server]:
+        with self._lock:
+            return list(self._servers.values())
+
     def _start_monitor(self) -> None:
         with self._lock:
             if self._monitor_started:
@@ -84,6 +89,22 @@ class SSHClientPool:
             try:
                 client = self._ensure_connected_locked(server, entry)
                 return collect_stats(client, server, detail=detail)
+            except Exception as exc:
+                entry.last_error = str(exc)
+                if entry.client:
+                    entry.client.close()
+                    entry.client = None
+                return build_error_stats(server, str(exc))
+
+    def collect_with_disks(self, server: Server) -> HostStats:
+        entry = self._get_entry(server.id)
+        with entry.lock:
+            try:
+                client = self._ensure_connected_locked(server, entry)
+                disks = fetch_disks(client)
+                stats = collect_stats(client, server, detail="summary")
+                stats.disks.disks = disks
+                return stats
             except Exception as exc:
                 entry.last_error = str(exc)
                 if entry.client:
