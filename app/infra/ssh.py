@@ -225,8 +225,8 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
     return total, used
 
 
-def fetch_disk(client: paramiko.SSHClient, mount_filter: str | None = None) -> list[DiskInfo]:
-    result = run_command(client, "df -B1 | grep -E '^/dev' | tail -n +2")
+def fetch_disk(client: paramiko.SSHClient, mount_filters: list[str] | None = None) -> list[DiskInfo]:
+    result = run_command(client, "df -B1 | grep -E '^/dev'")
     if result.exit_code != 0:
         return []
 
@@ -240,7 +240,7 @@ def fetch_disk(client: paramiko.SSHClient, mount_filter: str | None = None) -> l
             total = int(parts[1])
             used = int(parts[2])
             mount = parts[-1]
-            if mount_filter and mount != mount_filter:
+            if mount_filters and mount not in mount_filters:
                 continue
             disks.append(DiskInfo(
                 device=device,
@@ -485,7 +485,7 @@ def collect_stats(
     cpu_cores, cpu_usage = fetch_cpu(client)
     mem_total, mem_used = fetch_memory(client)
     uptime_seconds = fetch_uptime(client)
-    disks_info = fetch_disk(client, server.disk_mount)
+    disks_info = fetch_disk(client, server.disks_monitored)
     detail_level = detail.lower()
     if detail_level == "summary":
         pm2_info = Pm2Info(error="skipped")

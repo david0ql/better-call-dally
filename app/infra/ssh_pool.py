@@ -101,7 +101,7 @@ class SSHClientPool:
         with entry.lock:
             try:
                 client = self._ensure_connected_locked(server, entry)
-                disks = fetch_disk(client, server.disk_mount)
+                disks = fetch_disk(client, server.disks_monitored)
                 stats = collect_stats(client, server, detail="summary")
                 stats.disks.disks = disks
                 return stats
