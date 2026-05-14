@@ -118,7 +118,7 @@ class SSHClientPool:
             hostname=server.host,
             port=server.port,
             username=server.user,
-            password=server.password,
+            password=server.get_password(),
             key_filename=str(key_path) if key_path else None,
             allow_agent=False,
             look_for_keys=False,

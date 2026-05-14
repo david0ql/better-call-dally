@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import ensure_data_dir
 from app.core.keys import ensure_watcher_keypair
+from app.core.migrations import migrate_servers
 from app.infra.ssh_pool import SSHClientPool
 from app.realtime.hub import hub
 from app.realtime.router import router as realtime_router
@@ -26,6 +27,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def _startup() -> None:
     ensure_data_dir()
+    migrate_servers()
     ensure_watcher_keypair()
     servers = ServerService().list_servers()
     SSHClientPool.get().warm_connections(servers)

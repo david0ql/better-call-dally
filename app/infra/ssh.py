@@ -463,18 +463,18 @@ def collect_stats(
             client,
             pm2_user=server.pm2_user,
             pm2_home=server.pm2_home,
-            sudo_password=server.password if server.user != "root" else None,
+            sudo_password=server.get_password() if server.user != "root" else None,
         )
         if pm2_info.error and server.password and server.user != "root":
             pm2_info, _ = fetch_pm2_details(
                 client,
                 pm2_user="root",
                 pm2_home=server.pm2_home or "/root/.pm2",
-                sudo_password=server.password,
+                sudo_password=server.get_password(),
             )
         supervisor_info = fetch_supervisor(
             client,
-            sudo_password=server.password if server.user != "root" else None,
+            sudo_password=server.get_password() if server.user != "root" else None,
             ssh_user=server.user,
         )
 
@@ -520,7 +520,7 @@ def gather_stats(server: Server) -> HostStats:
             hostname=server.host,
             port=server.port,
             username=server.user,
-            password=server.password,
+            password=server.get_password(),
             key_filename=str(key_path) if key_path else None,
             allow_agent=False,
             look_for_keys=False,
@@ -544,7 +544,7 @@ def provision_root_access(server: Server, public_key_path: Path) -> None:
             hostname=server.host,
             port=server.port,
             username=server.user,
-            password=server.password,
+            password=server.get_password(),
             key_filename=str(key_path) if key_path else None,
             allow_agent=False,
             look_for_keys=False,
@@ -555,7 +555,7 @@ def provision_root_access(server: Server, public_key_path: Path) -> None:
             client,
             key_text,
             ssh_user=server.user,
-            password=server.password,
+            password=server.get_password(),
         )
     finally:
         client.close()

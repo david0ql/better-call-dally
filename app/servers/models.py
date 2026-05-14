@@ -4,6 +4,8 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
+from app.core.secure_storage import decrypt, encrypt, is_encrypted
+
 
 class ServerCreate(BaseModel):
     name: str | None = None
@@ -31,15 +33,25 @@ class Server(BaseModel):
     tags: list[str] = Field(default_factory=list)
     enabled: bool
 
+    def get_password(self) -> str | None:
+        if not self.password:
+            return None
+        if is_encrypted(self.password):
+            return decrypt(self.password)
+        return self.password
+
     @staticmethod
     def from_create(payload: ServerCreate) -> "Server":
+        encrypted_password = None
+        if payload.password:
+            encrypted_password = encrypt(payload.password)
         return Server(
             id=str(uuid4()),
             name=payload.name,
             host=payload.host,
             port=payload.port,
             user=payload.user,
-            password=payload.password,
+            password=encrypted_password,
             key_path=payload.key_path,
             pm2_user=payload.pm2_user,
             pm2_home=payload.pm2_home,
