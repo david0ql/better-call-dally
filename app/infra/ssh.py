@@ -226,22 +226,20 @@ def fetch_disk(client: paramiko.SSHClient) -> tuple[int | None, int | None]:
 
 
 def fetch_disks(client: paramiko.SSHClient) -> list[DiskInfo]:
-    result = run_command(client, "df -B1 --output=source,fstype,size,used,target 2>/dev/null | grep -E '^/dev' | tail -n +2")
+    result = run_command(client, "df -B1 | grep -E '^/dev' | tail -n +2")
     if result.exit_code != 0:
-        result = run_command(client, "df -B1 | grep -E '^/dev' | tail -n +2")
-        if result.exit_code != 0:
-            return []
+        return []
 
     disks: list[DiskInfo] = []
     for line in result.stdout.splitlines():
         parts = line.split()
-        if len(parts) < 5:
+        if len(parts) < 6:
             continue
         try:
             device = parts[0]
             total = int(parts[1])
             used = int(parts[2])
-            mount = parts[4] if len(parts) > 4 else parts[3]
+            mount = parts[5] if len(parts) > 5 else parts[4]
             disks.append(DiskInfo(
                 device=device,
                 mount=mount,
@@ -252,18 +250,6 @@ def fetch_disks(client: paramiko.SSHClient) -> list[DiskInfo]:
             ))
         except (ValueError, IndexError):
             continue
-
-    if not disks:
-        total, used = fetch_disk(client)
-        if total is not None:
-            disks.append(DiskInfo(
-                device="/dev/root",
-                mount="/",
-                total_bytes=total,
-                used_bytes=used,
-                total_human=format_bytes(total),
-                used_human=format_bytes(used),
-            ))
 
     return disks
 
